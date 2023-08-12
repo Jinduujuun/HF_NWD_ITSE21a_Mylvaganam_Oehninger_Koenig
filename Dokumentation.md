@@ -63,3 +63,46 @@ Philipp Albrecht, Stefan Kemper | NWD GNS3 Labor VPN V1.docx | 03.06.2023 3/3
 - Alle Kabelverbindungen zwischen den Geräten sind fix. Erstellen Sie keine neuen (Ausser die für Lausanne – siehe Hinweis im GNS3 Projekt).
 ## 7 Bewertungskriterien und Abgabetermin
 Informieren Sie sich bei der Kursleitung betreffend Abgabetermin und Bewertungskriterien. Zu spät abgegebene (bis 24h) Arbeiten erhalten Abzug nach Ermessen der Kursleitung. 24 Stunden nach dem Abgabetermin werden keine Arbeiten akzeptiert und die Aufgabe gilt als nicht erfüllt.
+
+# Dokumentation Labor
+## VPN Technologien per Packet Capture analysieren
+Platzhalter für Antwort
+
+## Konfiguration Labor:
+<p>
+Um den Standort Lausanne aufzubauen haben wir einen neuen MikroTik CHR 7.5 Router und einen Debian 11.4 PC erstellt.
+Vom Router I-R1 ether6 eine Verbindung zum neuen Router ether1 und vom neuen Router ether2 zum Debian PC ens4 erstellt.
+Beim neuen Router über die Console mit dem Default Login: admin PW:"blank" angemeldet und auch unser Passwort tbz1234 gesetzt.
+Danbach den Router dann mit folgendem Befehl gemäss dem bestehenden Namenskonzept umbenannt:
+
+    /system identity set name=LS-R1
+
+Danach muss die IP-Adresse konfiguriert werden:
+ether1:
+
+    /ip address add address=203.0.113.70/30 interface=ether1 network=203.0.113.69
+
+Nun muss eine "0-Route" definiert werden:
+
+    /ip route add dst-address=0.0.0.0/0 gateway=203.0.113.69
+
+Um auch DNS Requests bearbeiten zu können muss ein DNS Server definiert werden. Wir nutzen hierzu den öffentlichen DNS von Google mit der IP: 8.8.8.8
+
+    /ip dns set allow-remote-requests=yes servers=8.8.8.8
+
+Das "interne Netz" hinter dem Router LS-R1 muss auch konfiguriert werden, damit PC's über den Router gerouted werden können:
+
+    /ip address add address=192.168.13.1/24 interface=ether2 network=192.168.13.0
+
+Nun kann ein Server Netzwerk definiert werden. Dies mit einem DHCP damit die IP's dynamisch verteilt werden:
+
+    /ip pool add name=dhcp_server ranges=192.168.13.20-192.168.13.50
+
+    /ip dhcp-server/add address-pool=dhcp_server interface=ether2 name=dhcp_server1
+
+Nun muss noch eine Firewall NAT für den ausgehenden Verkehr erstellt werden
+
+    /ip firewall nat add chain=srcnat action=masquerade out-interface=ether1
+
+Dies erstellt eine einfache ausgehende NAT-Regel, die alle ausgehenden Verbindungen von den internen Geräten zur Internetverbindung des Routers übersetzt. 
+

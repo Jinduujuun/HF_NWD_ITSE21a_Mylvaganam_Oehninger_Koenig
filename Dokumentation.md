@@ -98,6 +98,8 @@ Nun kann ein Server Netzwerk definiert werden. Dies mit einem DHCP damit die IP'
 
     /ip pool add name=dhcp_server ranges=192.168.13.20-192.168.13.50
 
+    /ip dhcp-server network add address=192.168.13.0/24 dns-server=192.168.13.1 gateway=192.168.13.1
+
     /ip dhcp-server/add address-pool=dhcp_server interface=ether2 name=dhcp_server1
 
 Nun muss noch eine Firewall NAT für den ausgehenden Verkehr erstellt werden
@@ -113,4 +115,95 @@ Die Konfiguration muss dann manuell gespeichert werden:
 Somit ist die Konfiguration für das Netzwerk in Lausanne soweit abgeschlossen.
 
 ### Wireguard Site-To-Site VPN Lausanne <-> Zürich
+Auf beiden Routern, Lausanne LS-R1 und Zürich ZH-R1, muss das WireGuard Interface konfiguriert werden:
+LS-R1:
+
+    /interface/wireguard add listen-port=13234 name=LSZH
+
+    /interface/wireguard print
+
+    Keys von LS-R1 "LSZH":
+    name="LSZH" mtu=1420 listen-port=13234
+      private-key="MJtgEC/F8pfr847sMrdPViQlT03LEveGobsmFSZGlWY="
+      public-key="hIyMi0/AA59z6bKV2zhEVhaK2QFjMtxZiEH5ET4xAG8="
+
+ZH-R1:
+
+    /interface/wireguard add listen-port=13234 name=ZHLS
+
+    /interface/wireguard print
+
+    Keys von ZH-R1 "ZHLS":
+    name="ZHLS" mtu=1420 listen-port=13234
+      private-key="6Axy3t2TcUKMFGVrF6Eoh2SUJJ6AKxdYOCdkInA6j3Q="
+      public-key="bOMUgC3g1ec36LPZ+Hpvt8Mo50b1zuv6k7Wykk/LfEU="
+
+Peer konfiguration:
+LS-R1:
+
+    /interface/wireguard/peers add allowed-address=192.168.9.0/24 endpoint-address=203.0.113.98 endpoint-port=13234 interface=LSZH \
+    public-key="bOMUgC3g1ec36LPZ+Hpvt8Mo50b1zuv6k7Wykk/LfEU="
+
+ZH-R1:
+
+    /interface/wireguard/peers add allowed-address=192.168.13.0/24 endpoint-address=203.0.113.70 endpoint-port=13234 interface=ZHLS \
+    public-key="hIyMi0/AA59z6bKV2zhEVhaK2QFjMtxZiEH5ET4xAG8="
+
+VPN Routing:
+LS-R1:
+
+    /ip/address add address=192.168.250.1/30 interface=LSZH
+    /ip/route add dst-address=192.168.9.0/24 gateway=LSZH
+
+ZH-R1:
+
+    /ip/address add address=192.168.250.1/30 interface=ZHLS
+    /ip/route add dst-address=192.168.13.0/24 gateway=ZHLS
+
+Dann müssen noch Firewall anpassungen gemacht werden, damit die Kommunikation nicht mehr blockiert wird von dem VPN:
+LS-R1:
+
+    /ip/firewall/filter
+    add action=accept chain=input dst-port=13234 protocol=udp src-address=203.0.113.98
+    add action=accept chain=input dst-port=13234 protocol=udp src-address=192.168.250.2
+    add action=accept chain=forward dst-address=192.168.9.0/24 src-address=192.168.13.0/24
+    add action=accept chain=forward dst-address=192.168.13.0/24 src-address=192.168.9.0/24
+
+ZH-R1:
+
+    /ip/firewall/filter
+    add action=accept chain=input dst-port=13234 protocol=udp src-address=203.0.113.70
+    add action=accept chain=input dst-port=13234 protocol=udp src-address=192.168.250.1
+    add action=accept chain=forward dst-address=192.168.13.0/24 src-address=192.168.9.0/24
+    add action=accept chain=forward dst-address=192.168.9.0/24 src-address=192.168.13.0/24
+
+### Wireguard RoadWarrior VPN Worker1 <-> Lausanne
+Auf dem Router in Lausanne muss hier auch zuerst ein Wireguard Interface erstellt werden:
+LS-R1:
+
+    /interface/wireguard add listen-port=13231 name=RWLS
+    /ip address add address=192.168.14.1/24 interface=RWLS network=192.168.14.0
+
+    Keys von LS-R1 "RWLS":
+    name="RWLS" mtu=1420 listen-port=13231
+      private-key="iAWpcqf7/q6dZcjxE6U3XUfVM50x6gtQ1Mev89xOaHU="
+      public-key="nUAD6T4nqjWSl08cB9auIbyGkDTMXToQlewDmft67mc="
+
+Danach muss ein peer konfiguriert werden zum remote Gerät, also dem Worker 1. Dafür benötigen wir den Public Key des Worker 1:
+
+   /interface wireguard peers add allowed-address=192.168.14.2/32 interface=MTW_LS \
+   public-key="public Key des Remote Devices"
+
+### Links und Hilfsmittel
+[Wireguard](https://help.mikrotik.com/docs/display/ROS/WireGuard)
+
+[ChatGPT](https://chat.openai.com/)
+
+[Modul NW2 Lab Abgabe](https://github.com/Luxano-IT/NW2)
+
+[MikroTik IPSec Wiki](https://wiki.mikrotik.com/wiki/Manual:IP/IPsec)
+
+[MikriTik IPSec Dokumentation](https://mikrotrik.com/ipsec-site-to-site-vpn-configuration/)
+
+
 

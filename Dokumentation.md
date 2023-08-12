@@ -189,10 +189,59 @@ LS-R1:
       private-key="iAWpcqf7/q6dZcjxE6U3XUfVM50x6gtQ1Mev89xOaHU="
       public-key="nUAD6T4nqjWSl08cB9auIbyGkDTMXToQlewDmft67mc="
 
-Danach muss ein peer konfiguriert werden zum remote Gerät, also dem Worker 1. Dafür benötigen wir den Public Key des Worker 1:
+Danach muss ein peer konfiguriert werden zum remote Gerät, also dem Worker1. Dafür benötigen wir den Public Key des Worker1:
 
    /interface wireguard peers add allowed-address=192.168.14.2/32 interface=MTW_LS \
    public-key="public Key des Remote Devices"
+
+Worker1:
+
+
+
+#### File-Share
+Auf dem erstellten Debian PC im Lausanne Netzwerk loggen wir uns mit dem Login: debian PW: debian ein.
+Um auf dem PC einen File-Share installieren zu können, müssen wir diesen zuerst updaten:
+
+    sudo su
+    apt-get update
+    apt update
+    apt install samba
+
+Somit ist Samba installiert. Danach können wir Samba konfigurieren:
+User erstellen:
+
+    sudo useradd worker1
+    
+    sudo passwd worker1 
+    tbz1234
+
+SMB User erstellen:
+
+    smbpasswd -a worker1
+    tbz1234
+
+File-Share Ordner erstellen:
+
+    mkdir /home/File-Share
+
+Berechtigung des Ordners für den User anpassen:
+
+    chown worker1 File-Share
+    chgrp worker1 File-Share
+
+Ordner Share in der Samba Konfiguration hinzufügen:
+
+    sudo nano /etc/samba/smb.conf
+
+    [File-Share]
+    path = /home/File-Share
+    readonly = no
+    inherit permission = yes
+
+Neustarten des Service, damit die Konfiguration aktiv wird:
+
+    service smbd restart
+
 
 ### Links und Hilfsmittel
 [Wireguard](https://help.mikrotik.com/docs/display/ROS/WireGuard)

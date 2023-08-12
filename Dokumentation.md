@@ -69,7 +69,7 @@ Informieren Sie sich bei der Kursleitung betreffend Abgabetermin und Bewertungsk
 Platzhalter für Antwort
 
 ## Konfiguration Labor:
-<p>
+### Standort Lausanne:
 Um den Standort Lausanne aufzubauen haben wir einen neuen MikroTik CHR 7.5 Router und einen Debian 11.4 PC erstellt.
 Vom Router I-R1 ether6 eine Verbindung zum neuen Router ether1 und vom neuen Router ether2 zum Debian PC ens4 erstellt.
 Beim neuen Router über die Console mit dem Default Login: admin PW:"blank" angemeldet und auch unser Passwort tbz1234 gesetzt.
@@ -105,4 +105,12 @@ Nun muss noch eine Firewall NAT für den ausgehenden Verkehr erstellt werden
     /ip firewall nat add chain=srcnat action=masquerade out-interface=ether1
 
 Dies erstellt eine einfache ausgehende NAT-Regel, die alle ausgehenden Verbindungen von den internen Geräten zur Internetverbindung des Routers übersetzt. 
+
+Die Konfiguration muss dann manuell gespeichert werden:
+
+    /system backup save name=LS-R1
+
+Somit ist die Konfiguration für das Netzwerk in Lausanne soweit abgeschlossen.
+
+### Wireguard Site-To-Site VPN Lausanne <-> Zürich
 

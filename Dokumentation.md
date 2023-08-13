@@ -197,6 +197,7 @@ Danach muss ein peer konfiguriert werden zum remote Gerät, also dem Worker1. Da
 Worker1:
 Der Worker1 funktioniert bei uns im Labor aktuell nicht. Daher können wir den Public Key nicht herauslesen und auch den File-Share nicht Einbinden um dies zu testen...
 
+Wir haben uns aufgrund der Probleme mit dem Worker1 und da wir nicht wussten, ob wir etwas falsch gemacht haben, bei einer anderen Gruppe um Hilfe gefragt und dies zusammen angeschaut. Leider konnten wir den Worker1 nicht zum laufen bringen. Gerne liefern wir dies noch nach, sollte der Worker1 wieder gefixt werden können.
 
 #### File-Share
 Auf dem erstellten Debian PC im Lausanne Netzwerk loggen wir uns mit dem Login: debian PW: debian ein.

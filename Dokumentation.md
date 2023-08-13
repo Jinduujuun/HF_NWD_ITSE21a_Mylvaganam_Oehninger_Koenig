@@ -195,7 +195,7 @@ Danach muss ein peer konfiguriert werden zum remote Gerät, also dem Worker1. Da
    public-key="public Key des Remote Devices"
 
 Worker1:
-
+Der Worker1 funktioniert bei uns im Labor aktuell nicht. Daher können wir den Public Key nicht herauslesen und auch den File-Share nicht Einbinden um dies zu testen...
 
 
 #### File-Share
@@ -242,7 +242,57 @@ Neustarten des Service, damit die Konfiguration aktiv wird:
 
     service smbd restart
 
+Danach dürfte der File-Share vorhanden sein und funktionieren. Dieser sollte vom Worker1 im Café eingebunden werden können.
 
+### IPSec Site-to-Site VPN Lausanne <-> Basel
+LS-R1:
+
+Wir richten für das IPSec VPN ein Profil ein mit der Diffie-Hellmann Group 14	2048 bits MODP RFC 3526 ein. Dies definiert die Methode und den Algorithmus der Verschlüsselung:
+
+    /ip ipsec profile add dh-group=modp2048 enc-algorithm=aes-128 name=LSBS
+
+    /ip ipsec proposal add enc-algorithms=aes-128-cbc name=LSBS pfs-group=modp2048
+
+Danach muss ein Peer zum Router, welcher erreicht werden muss, eingerichtet werden:
+
+     /ip ipsec peer add address=203.0.113.82/32 name=LSBS profile=LSBS
+
+Danach muss eine Identity mit einem "secret" erstellt werden:
+
+    /ip ipsec identity add peer=LSBS secret=tbz1234
+
+Nun braucht es auch hier wieder eine Richtlinie für die Verbindung:
+
+    /ip ipsec policy add dst-address=192.168.11.0/24 peer=LSBS proposal=LSBS src-address=192.168.13.0/24 tunnel=yes
+
+Damit auch Daten über die Verbindun gesendet werden können, benötigt es nun noch eine NAT Regel.
+
+    /ip firewall nat add action=accept chain=srcnat dst-address=192.168.11.0/24 src-address=192.168.13.0/24
+
+Es gibt nun noch Probleme, dass nicht alle Pakete ankommen. Grund ist z.B. IP Fasttrack. Somit müssen wir noch eine Firewall Regel hinzufügen, damit dies auch akzeptiert wird:
+
+    /ip firewall filter add chain=forward action=accept place-before=0 src-address=192.168.11.0/24 dst-address=192.168.13.0/24 connection-state=established,related
+    /ip firewall filter add chain=forward action=accept place-before=1 src-address=192.168.13.0/24 dst-address=192.168.11.0/24 connection-state=established,related
+
+Nun muss die gleiche Konfiguration auf dem Router in Basel eingerichtet werden:
+BS-R1:
+
+    /ip ipsec profile add dh-group=modp2048 enc-algorithm=aes-128 name=BSLS
+
+    /ip ipsec proposal add enc-algorithms=aes-128-cbc name=BSLS pfs-group=modp2048
+    
+    /ip ipsec peer add address=203.0.113.70/32 name=BSLS profile=BSLS
+    
+    /ip ipsec identity add peer=BSLS
+    
+    /ip ipsec policy add dst-address=192.168.13.0/24 peer=BSLS proposal=BSLS src-address=192.168.11.0/24 tunnel=yes
+    
+    /ip firewall nat add action=accept chain=srcnat dst-address=192.168.13.0/24 src-address=192.168.11.0/24
+    
+    /ip firewall filter add chain=forward action=accept place-before=0 src-address=192.168.11.0/24 dst-address=192.168.13.0/24 connection-state=established,related
+    /ip firewall filter add chain=forward action=accept place-before=1 src-address=192.168.13.0/24 dst-address=192.168.11.0/24 connection-state=established,related
+
+      
 ### Links und Hilfsmittel
 [Wireguard](https://help.mikrotik.com/docs/display/ROS/WireGuard)
 

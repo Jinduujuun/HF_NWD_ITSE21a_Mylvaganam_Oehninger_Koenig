@@ -297,7 +297,7 @@ BS-R1:
 Nat und IPSec VPN können sich aufgrund ihrer unterschiedlichen Herangehensweisen zur Behandlung von IP-Paketen gegenseitig stören, wenn sie gleichzeitig verwendet werden. Probleme können durch Adress- und Portübersetzung, Headermanipulation, Protokollkonflikte und erhöhte Routing-Komplexität entstehen. Um diese Probleme zu vermeiden, können Sie alternative VPN-Protokolle in Betracht ziehen, NAT Traversal verwenden oder Split Tunneling implementieren.
 
 ## GNS3 Labor Netzwerktopologie
-![Beschreibungstext](URL_zur_Grafik)
+![GNS3 Lab](https://github.com/Jinduujuun/HF_NWD_ITSE21a_Mylvaganam_Oehninger_Koenig/blob/main/2023-08-13%2021_01_31-NWD_VPN_Lab_V1%20-%20GNS3.png)
 
 ### Links und Hilfsmittel
 [Wireguard](https://help.mikrotik.com/docs/display/ROS/WireGuard)

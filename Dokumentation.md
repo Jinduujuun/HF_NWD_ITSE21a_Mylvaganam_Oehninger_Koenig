@@ -289,8 +289,8 @@ BS-R1:
     
     /ip firewall nat add action=accept chain=srcnat dst-address=192.168.13.0/24 src-address=192.168.11.0/24
     
-    /ip firewall filter add chain=forward action=accept place-before=0 src-address=192.168.11.0/24 dst-address=192.168.13.0/24 connection-state=established,related
-    /ip firewall filter add chain=forward action=accept place-before=1 src-address=192.168.13.0/24 dst-address=192.168.11.0/24 connection-state=established,related
+    /ip firewall filter add chain=forward action=accept src-address=192.168.11.0/24 dst-address=192.168.13.0/24 connection-state=established,related
+    /ip firewall filter add chain=forward action=accept src-address=192.168.13.0/24 dst-address=192.168.11.0/24 connection-state=established,related
 
       
 ### Links und Hilfsmittel

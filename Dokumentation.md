@@ -292,10 +292,12 @@ BS-R1:
     /ip firewall filter add chain=forward action=accept src-address=192.168.11.0/24 dst-address=192.168.13.0/24 connection-state=established,related
     /ip firewall filter add chain=forward action=accept src-address=192.168.13.0/24 dst-address=192.168.11.0/24 connection-state=established,related
 
-##
-Weshalb kann IPSec und NAT ein Problem darstellen?
+## Weshalb kann IPSec und NAT ein Problem darstellen?
 
 Nat und IPSec VPN können sich aufgrund ihrer unterschiedlichen Herangehensweisen zur Behandlung von IP-Paketen gegenseitig stören, wenn sie gleichzeitig verwendet werden. Probleme können durch Adress- und Portübersetzung, Headermanipulation, Protokollkonflikte und erhöhte Routing-Komplexität entstehen. Um diese Probleme zu vermeiden, können Sie alternative VPN-Protokolle in Betracht ziehen, NAT Traversal verwenden oder Split Tunneling implementieren.
+
+## GNS3 Labor Netzwerktopologie
+![Beschreibungstext](URL_zur_Grafik)
 
 ### Links und Hilfsmittel
 [Wireguard](https://help.mikrotik.com/docs/display/ROS/WireGuard)
